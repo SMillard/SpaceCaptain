@@ -43,6 +43,13 @@ public class Interaction : MonoBehaviour
 				_timer = 0;
 				_onCooldown = false;
 			}
+			else if (_currentOrder != null && _currentOrder.Type == OrderType.FireLasers)
+			{
+				foreach (LineRenderer laser in _gameController.GetLasers())
+				{
+					laser.enabled = ((int)(_timer * 5)) % 2 == 0;
+				}
+			}
 		}
 		
 		if (_currentOrder != null)
@@ -75,7 +82,6 @@ public class Interaction : MonoBehaviour
 		{
 			for (int i = 0; i < Orders.Length; i++)
 			{
-				
 				GUI.enabled = !_onCooldown && Orders[i].PowerCost <= _gameController.PowerLevel;
 				Rect orderRect = new Rect(_myPos.x  + 25 - 75 * Orders.Length + i * 150, Screen.height - _myPos.y - 100, 100, 100);
 				Rect orderRectName = new Rect(_myPos.x  + 30 - 75 * Orders.Length + i * 150, Screen.height - _myPos.y - 80, 150, 100);
@@ -96,15 +102,25 @@ public class Interaction : MonoBehaviour
 					_currentOrder = Orders[i];
 					_powerRegen = 100 - _gameController.PowerLevel;
 					
-					audio.PlayOneShot(_currentOrder.SelectAudio[Random.Range(0, _currentOrder.SelectAudio.Length + 1)]);
+					try {
+						audio.PlayOneShot(_currentOrder.SelectAudio[Random.Range(0, _currentOrder.SelectAudio.Length + 1)]);
+					} catch {}
 				}
 			}
 			
 			GUI.enabled = true;
 		}
 			
-		if (_onCooldown)
-			GUI.Box(new Rect(_myPos.x - 25, Screen.height - _myPos.y - 160, 50, 50), string.Format("{0:00.0}", _timer));
+		if (_onCooldown && _currentOrder != null)
+		{
+			GUIContent text = new GUIContent(_currentOrder.Name + ": " + string.Format("{0:0.0}", _effectTimer));
+			Vector2 textSize = GUI.skin.box.CalcSize(text);
+			GUI.Box(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, 26 + textSize.x, 50), "");
+			GUI.Box(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, Mathf.Max((26 + textSize.x) * (_effectTimer / _currentOrder.EffectTime), 5), 50), "");
+			GUI.skin.label.alignment = TextAnchor.MiddleCenter;
+			GUI.Label(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, 26 + textSize.x, 50), text);
+			GUI.skin.label.alignment = TextAnchor.UpperLeft;
+		}
 	}
 	
 	public void DisableInteraction()
@@ -119,7 +135,9 @@ public class Interaction : MonoBehaviour
 	
 	private void ActivateOrder()
 	{
-		audio.PlayOneShot(_currentOrder.ActivateAudio[Random.Range(0, _currentOrder.ActivateAudio.Length + 1)]);
+		try {
+			audio.PlayOneShot(_currentOrder.ActivateAudio[Random.Range(0, _currentOrder.ActivateAudio.Length + 1)]);
+		} catch {}
 		
 		switch (_currentOrder.Type)
 		{
@@ -141,6 +159,11 @@ public class Interaction : MonoBehaviour
 				if (Random.value * 100 < (_gameController.Accuracy - 10 + accuracyBonus))
 				{
 					_enemyShip.HullLevel -= _currentOrder.Damage * (1f + (damageBonus / 100f));
+				}
+				
+				foreach (LineRenderer laser in _gameController.GetLasers())
+				{
+					laser.enabled = false;
 				}
 			}
 			break;

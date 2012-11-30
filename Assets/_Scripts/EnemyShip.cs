@@ -36,7 +36,9 @@ public class EnemyShip : MonoBehaviour
 			{
 				if (_currentAction.Type == ActionType.FireLasers)
 				{
-					audio.PlayOneShot(_currentAction.ActivateAudio[Random.Range(0, _currentAction.ActivateAudio.Length + 1)]);
+					try {
+						audio.PlayOneShot(_currentAction.ActivateAudio[Random.Range(0, _currentAction.ActivateAudio.Length + 1)]);
+					} catch {}
 					
 					float evasionChance = 0f;
 					float damageReduction = 0f;
@@ -68,7 +70,9 @@ public class EnemyShip : MonoBehaviour
 		
 		if (_timer <= 0 && _currentAction == null)
 		{
-			audio.PlayOneShot(_currentAction.SelectAudio[Random.Range(0, _currentAction.SelectAudio.Length + 1)]);
+			try {
+				audio.PlayOneShot(_currentAction.SelectAudio[Random.Range(0, _currentAction.SelectAudio.Length + 1)]);
+			} catch {}
 			
 			_timer = 0;
 			_currentAction = Actions[0];

@@ -8,6 +8,15 @@ public class GameController : MonoBehaviour
 	
 	public float Accuracy;
 	
+	public GameObject LaserObject;
+	
+	private LineRenderer[] _lasers;
+	
+	void Start ()
+	{
+		_lasers = LaserObject.GetComponentsInChildren<LineRenderer>();
+	}
+	
 	void Update()
 	{
 		if (Input.GetMouseButtonDown(0))
@@ -35,5 +44,10 @@ public class GameController : MonoBehaviour
 		GUI.Box(new Rect(Screen.width / 2, 5, Screen.width / 3, 30), "Main Power");
 		if (PowerLevel > 0)
 			GUI.Box(new Rect(Screen.width / 2, 5, (Screen.width / 3) * PowerLevel / 100, 30), "");
+	}
+	
+	public LineRenderer[] GetLasers()
+	{
+		return _lasers;
 	}
 }
