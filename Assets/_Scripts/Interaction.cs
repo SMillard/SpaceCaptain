@@ -96,7 +96,7 @@ public class Interaction : MonoBehaviour
 					_currentOrder = Orders[i];
 					_powerRegen = 100 - _gameController.PowerLevel;
 					
-					audio.PlayOneShot(_currentOrder.SelectAudio);
+					audio.PlayOneShot(_currentOrder.SelectAudio[Random.Range(0, _currentOrder.SelectAudio.Length + 1)]);
 				}
 			}
 			
@@ -119,7 +119,7 @@ public class Interaction : MonoBehaviour
 	
 	private void ActivateOrder()
 	{
-		audio.PlayOneShot(_currentOrder.ActivateAudio);
+		audio.PlayOneShot(_currentOrder.ActivateAudio[Random.Range(0, _currentOrder.ActivateAudio.Length + 1)]);
 		
 		switch (_currentOrder.Type)
 		{
@@ -183,7 +183,7 @@ public class Interaction : MonoBehaviour
 		public float EffectTime;
 		public int PowerCost;
 		public float Damage;
-		public AudioClip SelectAudio;
-		public AudioClip ActivateAudio;
+		public AudioClip[] SelectAudio;
+		public AudioClip[] ActivateAudio;
 	}
 }
