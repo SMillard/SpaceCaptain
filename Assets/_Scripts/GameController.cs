@@ -6,6 +6,8 @@ public class GameController : MonoBehaviour
 	public float HullLevel;
 	public float PowerLevel;
 	
+	public float Accuracy;
+	
 	void Update()
 	{
 		if (Input.GetMouseButtonDown(0))

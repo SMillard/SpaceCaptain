@@ -7,6 +7,8 @@ public class EnemyShip : MonoBehaviour
 	
 	public float HullLevel;
 	
+	public float Accuracy;
+	
 	public Action[] Actions;
 	
 	private float _startingHull;
@@ -36,6 +38,7 @@ public class EnemyShip : MonoBehaviour
 				{
 					float evasionChance = 0f;
 					float damageReduction = 0f;
+					float accuracyReduction = 0f;
 					
 					foreach (Interaction i in _interactions)
 					{
@@ -43,9 +46,12 @@ public class EnemyShip : MonoBehaviour
 							evasionChance = 70f;
 						else if (i.GetCurrentOrder() != null && i.GetCurrentOrder().Type == Interaction.OrderType.ShieldsUP)
 							damageReduction = _currentAction.Damage * 80 / 100;
+						else if (i.GetCurrentOrder() != null && i.GetCurrentOrder().Type == Interaction.OrderType.JamEnemy)
+							accuracyReduction = 30;
 					}
 					
-					if (Random.Range(0, 100) >= evasionChance)
+					if (Random.Range(0, 100) >= evasionChance &&
+						Random.Range(0, 100) < Accuracy - accuracyReduction)
 					{
 						_gameController.HullLevel = Mathf.Max(0, _gameController.HullLevel - (_currentAction.Damage - damageReduction));
 					}

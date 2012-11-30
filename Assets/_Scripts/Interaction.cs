@@ -95,6 +95,8 @@ public class Interaction : MonoBehaviour
 					_maxEffectTimer = Orders[i].EffectTime;
 					_currentOrder = Orders[i];
 					_powerRegen = 100 - _gameController.PowerLevel;
+					
+					audio.PlayOneShot(_currentOrder.SelectAudio);
 				}
 			}
 			
@@ -102,7 +104,7 @@ public class Interaction : MonoBehaviour
 		}
 			
 		if (_onCooldown)
-			GUI.Box(new Rect(_myPos.x - 25, Screen.height - _myPos.y - 160, 50, 50), string.Format("{0:00.00}", _timer));
+			GUI.Box(new Rect(_myPos.x - 25, Screen.height - _myPos.y - 160, 50, 50), string.Format("{0:00.0}", _timer));
 	}
 	
 	public void DisableInteraction()
@@ -117,18 +119,57 @@ public class Interaction : MonoBehaviour
 	
 	private void ActivateOrder()
 	{
+		audio.PlayOneShot(_currentOrder.ActivateAudio);
+		
 		switch (_currentOrder.Type)
 		{
 		case OrderType.FireLasers:
 			if (_effectTimer <= 0)
-				_enemyShip.HullLevel -= _currentOrder.Damage;
+			{
+				float accuracyBonus = 0;
+				float damageBonus = 0;
+				
+				foreach (Interaction i in _interactions)
+				{
+					if (i.GetCurrentOrder() != null && i.GetCurrentOrder().Type == Interaction.OrderType.FlankingAttack)
+					{
+						damageBonus = 30;
+						accuracyBonus = 20;
+					}
+				}
+				
+				if (Random.value * 100 < (_gameController.Accuracy - 10 + accuracyBonus))
+				{
+					_enemyShip.HullLevel -= _currentOrder.Damage * (1f + (damageBonus / 100f));
+				}
+			}
 			break;
 		case OrderType.FireTorpedoes:
 			if (_effectTimer <= 0)
-				_enemyShip.HullLevel -= _currentOrder.Damage;
+			{
+				float accuracyBonus = 0;
+				float damageBonus = 0;
+				
+				foreach (Interaction i in _interactions)
+				{
+					if (i.GetCurrentOrder() != null && i.GetCurrentOrder().Type == Interaction.OrderType.FlankingAttack)
+					{
+						damageBonus = 30;
+						accuracyBonus = 20;
+					}
+				}
+				
+				if (Random.value * 100 < (_gameController.Accuracy + 20 + accuracyBonus))
+				{
+					_enemyShip.HullLevel -= _currentOrder.Damage * (1f + (damageBonus / 100f));
+				}
+			}
 			break;
 		case OrderType.PowerManagement:
 			_gameController.PowerLevel = Mathf.Min(_gameController.PowerLevel + _powerRegen * Time.deltaTime / _maxEffectTimer, 100);
+			break;
+		case OrderType.Repair:
+			// repair
 			break;
 		}
 	}
@@ -142,5 +183,7 @@ public class Interaction : MonoBehaviour
 		public float EffectTime;
 		public int PowerCost;
 		public float Damage;
+		public AudioClip SelectAudio;
+		public AudioClip ActivateAudio;
 	}
 }
