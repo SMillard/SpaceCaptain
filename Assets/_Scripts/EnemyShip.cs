@@ -30,7 +30,7 @@ public class EnemyShip : MonoBehaviour
 	
 	void Update()
 	{
-		if (_currentAction != null)
+		if (_currentAction != null && !_gameController.GetGameOverStatus())
 		{
 			if (_effectTimer <= 0)
 			{
@@ -58,6 +58,9 @@ public class EnemyShip : MonoBehaviour
 						Random.Range(0, 100) < Accuracy - accuracyReduction)
 					{
 						_gameController.HullLevel = Mathf.Max(0, _gameController.HullLevel - (_currentAction.Damage - damageReduction));
+						
+						if (_gameController.HullLevel <= 0)
+							_gameController.SetGameOverStatus(true, false);
 					}
 				}
 				
@@ -68,7 +71,7 @@ public class EnemyShip : MonoBehaviour
 			_effectTimer -= Time.deltaTime;
 		}
 		
-		if (_timer <= 0 && _currentAction == null)
+		if (_timer <= 0 && _currentAction == null && !_gameController.GetGameOverStatus())
 		{
 			try {
 				audio.PlayOneShot(_currentAction.SelectAudio[Random.Range(0, _currentAction.SelectAudio.Length + 1)]);
@@ -84,21 +87,24 @@ public class EnemyShip : MonoBehaviour
 	
 	void OnGUI()
 	{
-		GUI.skin.box.alignment = TextAnchor.MiddleCenter;
-		GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-		GUI.skin.label.normal.textColor = Color.red;
-		
-		Vector3 myPos = Camera.mainCamera.WorldToScreenPoint(transform.position);
-		
-		GUI.Box(new Rect(myPos.x - 75, Screen.height - myPos.y - 110, 150, 25), "Hull Integrity");
-		if (HullLevel > 0)
-			GUI.Box(new Rect(myPos.x - 75, Screen.height - myPos.y - 110, 150 * HullLevel / _startingHull, 25), "");
-		
-		if (_currentAction != null)
-			GUI.Label(new Rect(myPos.x - 75, Screen.height - myPos.y + 35, 150, 25), _currentAction.Name);
-		
-		GUI.skin.label.alignment = TextAnchor.UpperLeft;
-		GUI.skin.label.normal.textColor = Color.white;
+		if (!_gameController.GetGameOverStatus())
+		{
+			GUI.skin.box.alignment = TextAnchor.MiddleCenter;
+			GUI.skin.label.alignment = TextAnchor.MiddleCenter;
+			GUI.skin.label.normal.textColor = Color.red;
+			
+			Vector3 myPos = Camera.mainCamera.WorldToScreenPoint(transform.position);
+			
+			GUI.Box(new Rect(myPos.x - 75, Screen.height - myPos.y - 110, 150, 25), "Hull Integrity");
+			if (HullLevel > 0)
+				GUI.Box(new Rect(myPos.x - 75, Screen.height - myPos.y - 110, 150 * HullLevel / _startingHull, 25), "");
+			
+			if (_currentAction != null)
+				GUI.Label(new Rect(myPos.x - 75, Screen.height - myPos.y + 35, 150, 25), _currentAction.Name);
+			
+			GUI.skin.label.alignment = TextAnchor.UpperLeft;
+			GUI.skin.label.normal.textColor = Color.white;
+		}
 	}
 	
 	[System.Serializable]

@@ -78,7 +78,7 @@ public class Interaction : MonoBehaviour
 	
 	void OnGUI()
 	{
-		if (_interacting)
+		if (_interacting && !_gameController.GetGameOverStatus())
 		{
 			for (int i = 0; i < Orders.Length; i++)
 			{
@@ -110,16 +110,25 @@ public class Interaction : MonoBehaviour
 			
 			GUI.enabled = true;
 		}
-			
-		if (_onCooldown && _currentOrder != null)
+		
+		if (_onCooldown && !_gameController.GetGameOverStatus())
 		{
-			GUIContent text = new GUIContent(_currentOrder.Name + ": " + string.Format("{0:0.0}", _effectTimer));
-			Vector2 textSize = GUI.skin.box.CalcSize(text);
-			GUI.Box(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, 26 + textSize.x, 50), "");
-			GUI.Box(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, Mathf.Max((26 + textSize.x) * (_effectTimer / _currentOrder.EffectTime), 5), 50), "");
-			GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-			GUI.Label(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, 26 + textSize.x, 50), text);
-			GUI.skin.label.alignment = TextAnchor.UpperLeft;
+			if (_currentOrder != null)
+			{
+				GUIContent text = new GUIContent(_currentOrder.Name);
+				Vector2 textSize = GUI.skin.box.CalcSize(text);
+				GUI.Box(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, 26 + textSize.x, 50), "");
+				GUI.Box(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, Mathf.Max((26 + textSize.x) * (_effectTimer / _currentOrder.EffectTime), 5), 50), "");
+				GUI.skin.label.alignment = TextAnchor.MiddleCenter;
+				GUI.Label(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, 26 + textSize.x, 50), text);
+				GUI.skin.label.alignment = TextAnchor.UpperLeft;
+			}
+			else
+			{
+				GUIContent text = new GUIContent(string.Format("{0:0.0}", _timer));
+				Vector2 textSize = GUI.skin.box.CalcSize(text);
+				GUI.Box(new Rect(_myPos.x - 13 - textSize.x / 2, Screen.height - _myPos.y - 160, 26 + textSize.x, 50), text);
+			}
 		}
 	}
 	
@@ -159,6 +168,9 @@ public class Interaction : MonoBehaviour
 				if (Random.value * 100 < (_gameController.Accuracy - 10 + accuracyBonus))
 				{
 					_enemyShip.HullLevel -= _currentOrder.Damage * (1f + (damageBonus / 100f));
+					
+					if (_enemyShip.HullLevel <= 0)
+						_gameController.SetGameOverStatus(true, true);
 				}
 				
 				foreach (LineRenderer laser in _gameController.GetLasers())
@@ -185,6 +197,9 @@ public class Interaction : MonoBehaviour
 				if (Random.value * 100 < (_gameController.Accuracy + 20 + accuracyBonus))
 				{
 					_enemyShip.HullLevel -= _currentOrder.Damage * (1f + (damageBonus / 100f));
+					
+					if (_enemyShip.HullLevel <= 0)
+						_gameController.SetGameOverStatus(true, true);
 				}
 			}
 			break;

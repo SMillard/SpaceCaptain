@@ -12,6 +12,9 @@ public class GameController : MonoBehaviour
 	
 	private LineRenderer[] _lasers;
 	
+	private bool _gameOver;
+	private bool _playerVictory;
+	
 	void Start ()
 	{
 		_lasers = LaserObject.GetComponentsInChildren<LineRenderer>();
@@ -44,10 +47,29 @@ public class GameController : MonoBehaviour
 		GUI.Box(new Rect(Screen.width / 2, 5, Screen.width / 3, 30), "Main Power");
 		if (PowerLevel > 0)
 			GUI.Box(new Rect(Screen.width / 2, 5, (Screen.width / 3) * PowerLevel / 100, 30), "");
+		
+		if (_gameOver)
+		{
+			if (_playerVictory)
+				GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "YOU WIN!!!");
+			else
+				GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "DEFEAT!!!");
+		}
 	}
 	
 	public LineRenderer[] GetLasers()
 	{
 		return _lasers;
+	}
+	
+	public bool GetGameOverStatus()
+	{
+		return _gameOver;
+	}
+	
+	public void SetGameOverStatus(bool status, bool playerVictory)
+	{
+		_gameOver = status;
+		_playerVictory = playerVictory;
 	}
 }
